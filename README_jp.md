@@ -1,78 +1,78 @@
 # Deep Single Image Camera Calibration by Heatmap Regression to Recover Fisheye Images Under Manhattan World Assumption
 
 <p align="center">
-  <a href="https://tech-ai.panasonic.com/en/researcher_introduction/050/">Nobuhiko Wakai </a><sup>1,*</sup>, 
-  Satoshi Sato <sup>1</sup>, 
-  <a href="https://tech-ai.panasonic.com/en/researcher_introduction/003/">Yasunori Ishii </a><sup>1</sup>, 
-  <a href="http://mprg.cs.chubu.ac.jp/~takayoshi/">Takayoshi Yamashita </a><sup>2</sup><br>
-  1 Panasonic Holdings, 2 Chubu University<br>
+  <a href="https://tech-ai.panasonic.com/jp/researcher_introduction/050/">若井 信彦 </a><sup>1,*</sup>, 
+  佐藤 智 <sup>1</sup>, 
+  <a href="https://tech-ai.panasonic.com/jp/researcher_introduction/003/">石井 育規 </a><sup>1</sup>, 
+  <a href="http://mprg.cs.chubu.ac.jp/~takayoshi/">山下 隆義 </a><sup>2</sup><br>
+  1 パナソニックホールディングス, 2 中部大学<br>
   * wakai.nobuhiko[at]jp.panasonic.com<br>
   <br>
   IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) 2024
 </p>
 
-日本語のプロジェクトページは[[こちら]](./README_jp.md)
+English project page is [[here]](./README.md)
 
-## Abstract
-<a href="https://tech-ai.panasonic.com/en/researcher_introduction/050/"><img src="./figure/wakai.png" width="18%" align="right"></a>A Manhattan world lying along cuboid buildings is useful for camera angle estimation. However, accurate and robust angle estimation from fisheye images in the Manhattan world has remained an open challenge because general scene images tend to lack constraints such as lines, arcs, and vanishing points. To achieve higher accuracy and robustness, we propose a learning-based calibration method that uses heatmap regression, which is similar to pose estimation using keypoints, to detect the directions of labeled image coordinates. Simultaneously, our two estimators recover the rotation and remove fisheye distortion by remapping from a general scene image. Without considering vanishing-point constraints, we find that additional points for learning-based methods can be defined. To compensate for the lack of vanishing points in images, we introduce auxiliary diagonal points that have the optimal 3D arrangement of spatial uniformity. Extensive experiments demonstrated that our method outperforms conventional methods on large-scale datasets and with off-the-shelf cameras.
+## 要旨
+<a href="https://tech-ai.panasonic.com/en/researcher_introduction/050/"><img src="./figure/wakai.png" width="18%" align="right"></a>マンハッタン世界は直方体の建築物に沿った世界座標系であり、カメラの角度推定に適する。しかし、一般風景は直線、円弧、消失点などの拘束が不足しており、魚眼画像からのマンハッタン世界における正確かつ頑健な角度推定は未だに困難である。正確かつ頑健な推定を達成するため、ラベル付きの画像座標として方向を検出することは骨格推定におけるキーポイント検出と同様であり、ヒートマップを用いる学習ベースのカメラ校正法を提案する。２つの推定器は１枚の一般風景画像からリマップを通じて回転補正と魚眼歪みを除去する。消失点の拘束を考慮しないことで、学習ベース手法用に追加の特徴点を定義できる。画像中の消失点不足を補うため、三次元空間の一様性に関して最適配置となる補助対角点を導入する。大規模データセットと市販カメラを用いた広範な実験により提案法が従来法を上回る性能を示す。
 
-## Background
-Camera calibration is used for various computer vision tasks to recover camera rotation and fisheye distortion. However, conventional geometric-based calibration methods need a calibration object, such as a plane or a cube. To address this problem, we use learning-based calibration methods called “Deep Single Image Camera Calibration.” Image-based angle estimation under Manhattan world assumption [12] is better for miniaturized and lightweight design for cars, drones, and robots. However, accurate and robust angle estimation has remained an open challenge because general scene images tend to lack constraints such as lines, arcs, and vanishing points (VPs).
+## 背景
+カメラ校正は様々なコンピュータビジョンのタスクでカメラの回転と魚眼歪みの補正に利用される。しかし、従来の幾何ベースのカメラ校正法は校正指標である板や直方体が必要であり、この課題に対して著者らは深層単画像カメラ校正と呼ばれる学習ベースの校正法を用いる。マンハッタン世界仮説 [2]における画像ベースの角度推定は自動車、ドローン、とロボットの小型軽量化に適する。しかし、直線、円弧、消失点 (VP) などの拘束力不足の傾向が一般風景画像にあるため、正確かつ頑健な角度推定は未だに困難である。
 
-## Contributions
-- We propose a heatmap-based VP estimator for recovering the rotation from a single image to achieve higher accuracy and robustness than geometry-based methods using arc detectors.
+## 貢献
+- 円弧検出器を用いる幾何ベースの従来法より高精度かつ頑健を達成するため、１枚の画像から回転補正するヒートマップに基づく消失点推定器を提案する。
 
-- We introduce auxiliary diagonal points (ADPs) with an optimal 3D arrangement based on the spatial uniformity of regular octahedron groups to address the lack of VPs in an image.
+- 画像中の消失点不足に対処するため、正八面体群に関する空間的な一様性に基づく最適な三次元配置を持つ補助対角点 (ADP) を導入する。
 
-## Proposed method
+## 提案法
 <p align="center">
   <img src="./figure/CVPR2024_Fig1.svg" width="50%"  alt="Our network estimates extrinsics and intrinsics."/>
 </p>
 
-**Fig. 1:** Our network estimates extrinsics and intrinsics in a Manhattan world from a single image. Our estimated camera parameters are used to fully recover images by remapping them while distinguishing the front and side directions on the basis of the Manhattan world. Cyan, magenta, and yellow lines indicate the three orthogonal planes of the Manhattan frame in each of the images. The input image is generated from [38]. This figure is referred to in our CVPR2024 Figure 1.
+**Fig. 1:** 提案ネットワークは１枚の画像からマンハッタン世界における外部と内部パラメータを推定する。推定されたカメラパラメータはマンハッタン世界に基づき正面と側面を区別したリマップ画像の完全な復元に使用される。シアン、マゼンタ、と黄色の直線は各画像におけるマンハッタンフレームの３つの直交平面を示す。入力画像は [38]から作成された。この画像は著名らの論文のFigure 1の引用である。
 <br>
 <br>
 
-### Auxiliary diagonal points
+### 補助対角点
 <p align="center">
   <img src="./figure/CVPR2024_Fig2.svg" width="50%"  alt="Auxiliary diagonal points"/>
 </p>
 
-**Fig. 2:** Coordinates of VPs and ADPs in a Manhattan world. The labels of the VPs and ADPs correspond to the labels described in Table 1 of our paper. This figure is referred to in our CVPR2024 Figure 3.
+**Fig. 2:** マンハッタン世界における消失点と補助対角点の座標。消失点と補助対角点のラベルは著者らの論文のTable 1に一致する。この画像は著名らの論文のFigure 3の引用である。
 <br>
 <br>
 
-Without considering the VP constraint that lines are concentrated at a VP, we can define various directions of points such as the vertexes of a polyhedron. We cannot escape the trade-off between the strength of constraints and the ease of training. This trade-off depends on the arrangement of the directions of points and the number of directions. To solve this problem concerning the arrangement and number of points, we define additional VP-related points called ADPs based on the spatial symmetry, see Figure 2.
+直線が画像中の一点に集中する消失点の拘束を考慮しないことで、正多面体の頂点方向などの様々な点を追加できる。拘束力と学習の容易さのトレードオフを避けることはできない。このトレードオフは点の方向の配置と点数に依存する。この配置と点数のトレードオフを解決するため、Figure 2に示す空間的な対称性に基づく補助対角点と呼ぶ追加点を定義する。
 
-### Network architecture
-We found that VP estimation in images corresponds to single human pose estimation [2] in terms of labeled image-coordinate detection. Therefore, we propose a heatmap-regression network, called the "VP estimator," that detects image VP and ADPs (VP/ADPs) and is likely to avoid such degradation. For the intrinsics in [53], we use Wakai et al.'s calibration network [53] without the tilt and roll angle regressors, which is called the "distortion estimator." Therefore, our network has two estimators in Figure 1 and requires a single fisheye image.
+### ネットワーク構造
+ラベル付きの画像座標検出に関して一人の骨格推定 [2]と消失点推定が一致することを見出した。したがって、円弧検出を使用することによる性能劣化を避け、ヒートマップに基づく消失点と補助対角点 (VP/ADP)の画像座標を検出する消失点推定器と呼ぶネットワークを提案する。内部パラメータ [53]の推定のため、歪み推定器と呼ぶ、チルト角とロール角の回帰を除いたWakai et al.の校正ネットワーク [53]を用いる。したがって、Figure 1に示す２つの推定器を持つネットワークは１枚の魚眼画像を入力として必要である。
 
-### Training and inference
+### 学習と推論
 <p align="center">
   <img src="./figure/CVPR2024_Fig3.svg" width="50%"  alt="Calibration pipeline for inference"/>
 </p>
 
-**Fig. 3:** Calibration pipeline for inference. The intrinsics are estimated by the distortion estimator. Camera models project VP/ADPs onto the unit sphere using backprojection. The extrinsics are calculated from the fitting. The input fisheye image is generated from [38]. This figure is referred to in our CVPR2024 Figure 4.
+**Fig. 3:** 推論時の校正のパイプライン。歪み推定器は内部パラメータを推定する。消失点と補助対角点はカメラモデルを用いた逆投影により単位球面上に投影される。外部パラメータはフィッティングにより計算される。入力画像は [38]より作成された。この画像は著名らの論文のFigure 4の引用である。
 <br>
 <br>
 
-Using the generated fisheye images with ground-truth camera parameters and VP/ADP labels, we train our two estimators independently. Figure 3 shows our calibration pipeline for inference. First, we obtain the image coordinates of VP/ADPs from the VP estimator and the intrinsics from the distortion estimator in Figure 3. Second, the detected VP/ADPs are projected onto a unit sphere in world coordinates using backprojection. This backprojection regards lens distortion using focal length and a distortion coefficient. Finally, we convert the 3D VP/ADPs to the extrinsics of pan, tilt, and roll angles by solving the absolute orientation problem [55].
+作成した魚眼画像と真値のカメラパラメータと消失点と補助対角点ラベルを用いて、２つの推定器を独立に学習した。Figure 3に推論時の校正のパイプラインを示す。第一に、消失点と補助対角点の画像座標を消失点推定器で取得し、内部パラメータを歪み推定器で取得する。第二に、検出した消失点と補助対角点を逆投影により単位球面上の世界座標に投影する。この逆投影は焦点距離と歪み係数を用いたレンズ歪みを考慮する。最後に、絶対配向問題 [55]を解くことで三次元の消失点と補助対角点をパン角、チルト角、ロール角からなる外部パラメータに変換する。
 <br>
 
-## Experiments
-We used three large-scale datasets of outdoor panoramas, the StreetLearn dataset [38], the SP360 dataset [9], and the HoliCity dataset [64]. In StreetLearn, we used the Manhattan 2019 subset (SL-MH) and the Pittsburgh 2019 subset (SL-PB). Following the procedure for dataset generation and capture [53], we generated fisheye images from panoramic images using the generic camera models with the ground-truth camera parameters, and we captured outdoor images in Kyoto, Japan, using six off-the-shelf fisheye cameras. Note that we removed label ambiguity and did not use back labels.
+## 実験
+屋外パノラマの大規模データセットであるStreetLearnデータセット [38]、SP360データセット [9]、とHoliCityデータセット [64]を評価に用いた。StreetLearnにおいて、Manhattan 2019サブセット(SL-MH)とPittsburgh 2019サブセット(SL-PB)を用いた。データセット作成と撮影手順は [53]に従い, 真値のカメラパラメータと共にパノラマ画像から一般カメラモデルの魚眼画像を作成し、京都で6台の市販カメラで撮影を実施した。なお、ラベルの曖昧性を除去し、後方ラベルは使用しなかった。
 <br>
 
-### Vanishing point estimation
+### 消失点推定
 <p align="center">
   <img src="./figure/CVPR2024_Fig4.svg" width="50%"  alt="Qualitative results of VP/ADP detection"/>
 </p>
 
-**Fig. 4:** Qualitative results of VP/ADP detection using the proposed VP estimator on the SL-MH test set. The VP estimator estimated five VP and eight ADP heatmaps for each VP/ADP. This figure is referred to in our CVPR2024 Figure 5.
+**Fig. 4:** SL-MHテストデータセットにおける提案消失点推定器の消失点と補助対角点の検出結果の定性評価結果。消失点推定器は５つの消失点と８つの補助対角点のヒートマップを消失点と補助対角点ごとに推定する。この画像は著名らの論文のFigure 5の引用である。
 <br>
 <br>
 
-Results of the cross-domain evaluation for our VP estimator using HRNet-W32
+HRNet-W32を用いた消失点推定器のクロスドメイン評価結果
 <table>
     <thead>
         <tr>
@@ -174,11 +174,11 @@ Results of the cross-domain evaluation for our VP estimator using HRNet-W32
         <td>14.11</td>
     </tr>
 </table>
-<sup>1</sup> VP denotes all 5 VPs; ADP denotes all 8 ADPs; All denotes all points consisting of 5 VPs and 8 ADPs<br>
+<sup>1</sup> VPは５つ全ての消失点、ADPは８つ全ての補助対角点、Allは５つの消失点と８つの補助対角点からなる全ての点を示す<br>
 <br>
 
-### Parameter and reprojection errors
-Comparison of the absolute parameter errors and reprojection errors on the SL-MH test set
+### パラメータと再投影誤差
+SL-MHテストデータセットにおけるパラメータの絶対値誤差と再投影誤差の比較
 <table>
     <thead>
         <tr>
@@ -335,33 +335,33 @@ Comparison of the absolute parameter errors and reprojection errors on the SL-MH
         <td>22.1</td>
     </tr>
 </table>
-<sup>1</sup> Units: pan <i>&phi;</i>, tilt <i>&theta;</i>, and roll <i>&psi;</i> [deg]; <i>f</i> [mm]; <i>k</i><sub>1</sub> [dimensionless]; REPE [pixel]; Executable rate [%]
+<sup>1</sup> 単位: Pan <i>&phi;</i>, Tilt <i>&theta;</i>, Roll <i>&psi;</i> [deg]; <i>f</i> [mm]; <i>k</i><sub>1</sub> [dimensionless]; REPE [pixel]; Executable rate [%]
 <br>
-<sup>2</sup> Implementations: López-Antequera et al. [33], Wakai and Yamashita [52], Wakai et al. [53], and ours using PyTorch [40]; Pritts et al. [41] and Lochman et al. [32] using The MathWorks MATLAB
+<sup>2</sup> 実装: López-Antequera et al. [33], Wakai and Yamashita [52], Wakai et al. [53], 提案法はPyTorch [40]を使用し、Pritts et al. [41]とLochman et al. [32]はThe MathWorks MATLABを使用
 <br>
-<sup>3</sup> (&middot; points) is the number of VP/ADPs for VP estimators; VP estimator backbones are indicated; Rotation estimation in Figure 3 is not included in GFLOPs
+<sup>3</sup> (&middot; points)は消失点推定器が用いる消失点と補助対角点の点数、消失点推定器のバックボーンを示し、Figure 3で示すRotation estimationはGFLOPsの計算に含めない
 <br>
 
-### Qualitative results on the synthesis images
+### 人工画像の定性評価
 <p align="center">
   <img src="./figure/CVPR2024_Fig5.svg" width="75%"  alt="Qualitative results on the synthesis images"/>
 </p>
 
-**Fig. 5:** Qualitative results on the test sets. (a) Results of conventional methods. From left to right: input images, ground truth (GT), and results of López-Antequera et al. [33], Wakai and Yamashita [52], Wakai et al. [53], Pritts et al. [41], and Lochman et al. [32]. (b) Results of our method. From left to right: input images, GT, and the results of our method using HRNet-W32 in a Manhattan world. This figure is referred to in our CVPR2024 Figure 6.
+**Fig. 5:** テストデータセットの定性評価結果。(a) 従来法の結果を示し、画像左から右に、入力画像、真値 (GT)、比較手法 (López-Antequera et al. [33]、Wakai and Yamashita [52]、Wakai et al. [53]、Pritts et al. [41]、とLochman et al. [32])。(b) 提案法の結果を示し、画像左から右に、入力画像、真値、マンハッタン世界におけるHRNet-W32を用いた提案法の結果。この画像は著名らの論文のFigure 6の引用である。
 <br>
 <br>
 
-### Qualitative results on the off-the-shelf camera images
+### 市販カメラ画像の定性評価
 <p align="center">
   <img src="./figure/CVPR2024_Fig6.svg" width="75%"  alt="Qualitative results on the off-the-shelf camera images"/>
 </p>
 
-**Fig. 6:** Qualitative results for images from off-the-shelf cameras. From top to bottom: input images, the results of the compared method (front and side direction images obtained by Lochman et al. [32]), and our method using HRNet-W32 (front and side direction images). The identifiers (IDs) correspond to the camera IDs used in [53], and the projection names are shown below the IDs. This figure is referred to in our CVPR2024 Figure 7.
+**Fig. 6:** 市販カメラの定性評価結果。画像上から下に、入力画像、比較手法Lochman et. alの正面と側面画像、とHRNet-W32を用いた提案法の正面と側面画像。IDは [53]で使用されたカメラIDと一致し、IDの下に投影方式を示す。この画像は著名らの論文のFigure 7の引用である。
 <br>
 <br>
-These descriptions on this project page are referred to in our CVPR2024.
+このプロジェクトページ内の説明は著者らのCVPR2024を引用して記載
 
-## Links
+## リンク
 - arXiv: [[arXiv]](https://arxiv.org/abs/2303.17166)
 - BibTex
 ```tex
@@ -372,11 +372,11 @@ These descriptions on this project page are referred to in our CVPR2024.
     year      = {2024}
 }
 ```
-- Related project
+- 関連プロジェクト
     * Nobuhiko Wakai and Takayoshi Yamashita. Deep Single Fisheye Image Camera Calibration for Over 180-degree Projection of Field of View. In International Conference on Computer Vision Workshop (ICCVW), pages 1174–1183, 2021. [[paper]](https://openaccess.thecvf.com/content/ICCV2021W/PBDL/papers/Wakai_Deep_Single_Fisheye_Image_Camera_Calibration_for_Over_180-Degree_Projection_ICCVW_2021_paper.pdf)
-    * Nobuhiko Wakai and Satoshi Sato and Yasunori Ishii and Takayoshi Yamashita. Rethinking Generic Camera Models for Deep Single Image Camera Calibration to Recover Rotation and Fisheye Distortion. In European Conference on Computer Vision (ECCV), volume 13678, pages 679–698, 2022. [[paper]](https://www.ecva.net/papers/eccv_2022/papers_ECCV/papers/136780668.pdf) [[project]](https://github.com/panasonic-ai/rethinking-generic-camera-models)
+    * Nobuhiko Wakai and Satoshi Sato and Yasunori Ishii and Takayoshi Yamashita. Rethinking Generic Camera Models for Deep Single Image Camera Calibration to Recover Rotation and Fisheye Distortion. In European Conference on Computer Vision (ECCV), volume 13678, pages 679–698, 2022. [[paper]](https://www.ecva.net/papers/eccv_2022/papers_ECCV/papers/136780668.pdf) [[project]](https://github.com/panasonic-ai/rethinking-generic-camera-models/blob/main/README_jp.md)
 
-## References
+## 参考文献
 - [2] M. Andriluka, L. Pishchulin, P. Gehler, and B. Schiele. 2D human pose estimation: New benchmark and state of the art analysis. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), pages 3686–3693, 2014.
 - [12] J. M. Coughlan and A. L. Yuille. Manhattan world: Compass direction from a single image by Bayesian inference. In Proceedings of the IEEE International Conference on Computer Vision (ICCV), pages 941–947, 1999.
 - [32] Y. Lochman, O. Dobosevych, R. Hryniv, and J. Pritts. Minimal solvers for single-view lens-distorted camera auto-calibration. In Proceedings of the IEEE Winter Conference on Applications of Computer Vision (WACV), pages 2886–2895,2021.
