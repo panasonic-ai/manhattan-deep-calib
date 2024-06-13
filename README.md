@@ -362,19 +362,22 @@ Comparison of the absolute parameter errors and reprojection errors on the SL-MH
 These descriptions on this project page are referred to in our CVPR2024.
 
 ## Links
+- CVPR2024: [[paper]](https://openaccess.thecvf.com/content/CVPR2024/papers/Wakai_Deep_Single_Image_Camera_Calibration_by_Heatmap_Regression_to_Recover_CVPR_2024_paper.pdf) [[supp]](https://openaccess.thecvf.com/content/CVPR2024/supplemental/Wakai_Deep_Single_Image_CVPR_2024_supplemental.pdf)
 - arXiv: [[arXiv]](https://arxiv.org/abs/2303.17166)
 - BibTex
 ```tex
 @INPROCEEDINGS{Wakai_2024_CVPR,
-    author    = {Nobuhiko Wakai and Satoshi Sato and Yasunori Ishii and Takayoshi Yamashita},
+    author    = {Wakai, Nobuhiko and Sato, Satoshi and Ishii, Yasunori and Yamashita, Takayoshi},
     title     = {Deep Single Image Camera Calibration by Heatmap Regression to Recover Fisheye Images Under Manhattan World Assumption},
     booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    pages     = {11884-11894},
     year      = {2024}
 }
 ```
 - Related project
     * Nobuhiko Wakai and Takayoshi Yamashita. Deep Single Fisheye Image Camera Calibration for Over 180-degree Projection of Field of View. In International Conference on Computer Vision Workshop (ICCVW), pages 1174–1183, 2021. [[paper]](https://openaccess.thecvf.com/content/ICCV2021W/PBDL/papers/Wakai_Deep_Single_Fisheye_Image_Camera_Calibration_for_Over_180-Degree_Projection_ICCVW_2021_paper.pdf)
     * Nobuhiko Wakai and Satoshi Sato and Yasunori Ishii and Takayoshi Yamashita. Rethinking Generic Camera Models for Deep Single Image Camera Calibration to Recover Rotation and Fisheye Distortion. In European Conference on Computer Vision (ECCV), volume 13678, pages 679–698, 2022. [[paper]](https://www.ecva.net/papers/eccv_2022/papers_ECCV/papers/136780668.pdf) [[project]](https://github.com/panasonic-ai/rethinking-generic-camera-models)
+- Press release [[press]](https://news.panasonic.com/global/press/en240605-5)
 
 ## References
 - [2] M. Andriluka, L. Pishchulin, P. Gehler, and B. Schiele. 2D human pose estimation: New benchmark and state of the art analysis. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), pages 3686–3693, 2014.
